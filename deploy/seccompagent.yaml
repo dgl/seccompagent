@@ -42,7 +42,7 @@ spec:
       hostPID: true
       containers:
       - name: seccomp-agent
-        image: quay.io/kinvolk/seccompagent:latest
+        image: docker.i.d.cx/seccompagent:latest
         command: [ "/bin/seccompagent", "-resolver=kubernetes", "-log=trace" ]
         imagePullPolicy: Always
         env:
@@ -62,16 +62,11 @@ spec:
             # CAP_SYS_ADMIN is useful to setns in containers and mount
             - "SYS_ADMIN"
             - "NET_ADMIN"
-          # privileged: true
         volumeMounts:
         - name: seccomp-policies
           mountPath: /host/seccomp
         - name: run
           mountPath: /run
-        # the freezer handler needs write access to the cgroup filesystems to
-        # write "FROZEN" on "freezer.state" interface file.
-        - name: cgroup
-          mountPath: /sys/fs/cgroup
       tolerations:
       - effect: NoSchedule
         operator: Exists
@@ -84,6 +79,3 @@ spec:
       - name: run
         hostPath:
           path: /run
-      - name: cgroup
-        hostPath:
-          path: /sys/fs/cgroup
