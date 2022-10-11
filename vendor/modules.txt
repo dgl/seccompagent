@@ -359,6 +359,11 @@ k8s.io/client-go/util/workqueue
 k8s.io/klog/v2
 # k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 k8s.io/utils/integer
+# kernel.org/pub/linux/libs/security/libcap/cap v1.2.66
+## explicit
+kernel.org/pub/linux/libs/security/libcap/cap
+# kernel.org/pub/linux/libs/security/libcap/psx v1.2.66
+kernel.org/pub/linux/libs/security/libcap/psx
 # sigs.k8s.io/structured-merge-diff/v4 v4.0.2
 sigs.k8s.io/structured-merge-diff/v4/value
 # sigs.k8s.io/yaml v1.2.0

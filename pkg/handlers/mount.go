@@ -29,6 +29,7 @@ import (
 	"github.com/kinvolk/seccompagent/pkg/nsenter"
 	"github.com/kinvolk/seccompagent/pkg/readarg"
 	"github.com/kinvolk/seccompagent/pkg/registry"
+	"github.com/kinvolk/seccompagent/pkg/userns"
 )
 
 var _ = nsenter.RegisterModule("mount", runMountInNamespaces)
@@ -149,6 +150,19 @@ func Mount(allowedFilesystems map[string]struct{}) registry.HandlerFunc {
 			Filesystem: filesystem,
 		}
 
+		allowed, err := userns.IsPIDAllowedMount(req.Pid)
+		if err != nil || allowed == false {
+			if err != nil {
+				log.WithFields(log.Fields{
+					"fd":   fd,
+					"pid":  req.Pid,
+					"kind": "allowed",
+					"err":  err,
+				}).Error("Cannot check if allowed")
+			}
+			return registry.HandlerResultErrno(unix.EPERM)
+		}
+
 		mntns, err := nsenter.OpenNamespace(req.Pid, "mnt")
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -206,6 +220,9 @@ func Mount(allowedFilesystems map[string]struct{}) registry.HandlerFunc {
 			return registry.HandlerResultErrno(unix.EPERM)
 		}
 		defer cwd.Close()
+
+		// /proc/pid/status
+		// /proc/pid/ns/user
 
 		if err := libseccomp.NotifIDValid(fd, req.ID); err != nil {
 			log.WithFields(log.Fields{
