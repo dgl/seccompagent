@@ -122,7 +122,7 @@ func main() {
 			// 	/ # ls /root/self/cmdline
 			// 	/root/self/cmdline
 			allowedFilesystems := map[string]struct{}{"proc": struct{}{}}
-			r.SyscallHandler["mount"] = handlers.Mount(allowedFilesystems, false /* do not check capabilities */)
+			r.SyscallHandler["mount"] = handlers.Mount(allowedFilesystems, false /* do not check capabilities */, nil)
 
 			// Example:
 			// 	# chmod 777 /
@@ -226,8 +226,15 @@ func main() {
 				requireCapsForMount = true
 			}
 
+			passEnv := []string{}
+			if v, ok := metadata["PASS_ENV"]; ok {
+				for _, name := range strings.Split(v, ",") {
+					passEnv = append(passEnv, name)
+				}
+			}
+
 			if len(allowedFilesystems) > 0 {
-				r.SyscallHandler["mount"] = handlers.Mount(allowedFilesystems, requireCapsForMount)
+				r.SyscallHandler["mount"] = handlers.Mount(allowedFilesystems, requireCapsForMount, passEnv)
 			}
 			return r
 		}

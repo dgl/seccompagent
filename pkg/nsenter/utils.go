@@ -108,7 +108,7 @@ func OpenCwd(pid uint32) (*os.File, error) {
 }
 
 // Run executes a module in other namespaces
-func Run(root, cwd, mntns, netns, pidns *os.File, i interface{}) ([]byte, error) {
+func Run(root, cwd, mntns, netns, pidns *os.File, passEnv []string, i interface{}) ([]byte, error) {
 	b, err := json.Marshal(i)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to encode interface: %s", err)
@@ -116,6 +116,13 @@ func Run(root, cwd, mntns, netns, pidns *os.File, i interface{}) ([]byte, error)
 
 	stdioFdCount := 3
 	cmd := exec.Command("/proc/self/exe", "-init")
+
+	for _, envName := range passEnv {
+		if env, ok := os.LookupEnv(envName); ok {
+			cmd.Env = append(cmd.Env, envName + "=" + env)
+		}
+	}
+
 	cmd.Env = append(cmd.Env, "_LIBNSENTER_INIT=1")
 
 	if root != nil {

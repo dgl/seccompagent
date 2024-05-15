@@ -120,7 +120,7 @@ func MkdirWithSuffix(suffix string) registry.HandlerFunc {
 			return registry.HandlerResultIntr()
 		}
 
-		output, err := nsenter.Run(root, cwd, mntns, nil, nil, params)
+		output, err := nsenter.Run(root, cwd, mntns, nil, nil, nil, params)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"fd":     fd,

@@ -57,7 +57,7 @@ func runMountInNamespaces(param []byte) string {
 	return "0"
 }
 
-func Mount(allowedFilesystems map[string]struct{}, requireUserNamespaceAdmin bool) registry.HandlerFunc {
+func Mount(allowedFilesystems map[string]struct{}, requireUserNamespaceAdmin bool, passEnv []string) registry.HandlerFunc {
 	return func(fd libseccomp.ScmpFd, req *libseccomp.ScmpNotifReq) (result registry.HandlerResult) {
 		memFile, err := readarg.OpenMem(req.Pid)
 		if err != nil {
@@ -252,7 +252,7 @@ func Mount(allowedFilesystems map[string]struct{}, requireUserNamespaceAdmin boo
 			return registry.HandlerResultIntr()
 		}
 
-		output, err := nsenter.Run(root, cwd, mntns, netns, pidns, params)
+		output, err := nsenter.Run(root, cwd, mntns, netns, pidns, passEnv, params)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"fd":     fd,
